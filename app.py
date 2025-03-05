@@ -10,7 +10,7 @@ USER_ID = 6681334553  # Replace with your actual Telegram ID
 bot = telebot.TeleBot(BOT_TOKEN)
 
 items = [
-    {"name": "Tea", "price": 10, "image": "images/tea.jpg"},
+    {"name": "Tea", "price": 15, "image": "images/tea.jpg"},
     {"name": "Coffee", "price": 20, "image": "images/coffee.jpg"},
     {"name": "Dosa", "price": 50, "image": "images/dosa.jpg"},
     {"name": "Idli", "price": 35, "image": "images/idli.jpg"},
