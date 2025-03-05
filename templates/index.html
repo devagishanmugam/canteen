@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canteen Ordering Website</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; text-align: center; background-color: #f9f9f9; }
+    #qrPage, #menuPage { display: none; padding: 20px; }
+    #qrPage { display: block; }
+    .menu { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
+    .item { width: 120px; }
+    .item img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; }
+    .price { margin-top: 5px; font-weight: bold; }
+    button { padding: 10px; background-color: #4caf50; color: white; border: none; cursor: pointer; margin-top: 10px; }
+    #orderBtn, #checkoutBtn, #addItemBtn { padding: 15px 30px; font-size: 18px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<!-- QR Page -->
+<div id="qrPage">
+  <h1>Scan to Order</h1>
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://yourwebsite.com" alt="QR Code">
+  <p>Scan this QR code with your mobile to access the menu.</p>
+</div>
+
+<!-- Menu Page -->
+<div id="menuPage">
+  <h1>Food Menu</h1>
+  <div class="menu" id="menuItems"></div>
+  <button id="orderBtn">Place Order</button>
+  <button id="checkoutBtn">Checkout</button>
+
+  <!-- Add New Item Section -->
+  <h2>Add New Item</h2>
+  <input type="text" id="itemName" placeholder="Item Name">
+  <input type="number" id="itemPrice" placeholder="Item Price">
+  <button id="addItemBtn">Add Item</button>
+</div>
+
+<script>
+  let cart = []; // Stores selected items
+
+  function loadMenu() {
+    fetch('/getitems')
+      .then(response => response.json())
+      .then(data => {
+        const menu = document.getElementById('menuItems');
+        menu.innerHTML = ""; // Clear previous items
+
+        data.forEach(item => {
+          const itemElement = document.createElement('div');
+          itemElement.classList.add('item');
+          itemElement.innerHTML = `
+            <img src="static/${item.image}" alt="${item.name}">
+            <div>${item.name}</div>
+            <div class="price">₹ ${item.price}</div>
+            <button onclick='addToCart(${JSON.stringify(item)})'>Add</button>
+          `;
+          menu.appendChild(itemElement);
+        });
+      });
+  }
+
+  function addToCart(item) {
+    cart.push(item); // Add item to cart
+    console.log("Cart:", cart); // Log cart in console for debugging
+  }
+
+  function checkout() {
+    if (cart.length === 0) {
+      alert("Your cart is empty!");
+      return;
+    }
+
+    fetch('/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: cart }) // Send cart to backend
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.redirect) {
+        window.location.href = data.redirect; // Redirect to confirm order page
+      }
+    });
+  }
+
+  document.getElementById('checkoutBtn').onclick = checkout;
+
+
+
+  setTimeout(() => {
+    document.getElementById('qrPage').style.display = 'none';
+    document.getElementById('menuPage').style.display = 'block';
+    loadMenu();
+  }, 5000);
+</script>
+
+
+</body>
+</html>

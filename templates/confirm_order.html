@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirm Order</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background-color: #f9f9f9; padding: 20px; }
+    .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .item { text-align: left; margin: 10px 0; }
+    .total { font-weight: bold; margin-top: 15px; }
+    input, button { width: 100%; padding: 10px; margin: 10px 0; }
+    button { background: #4caf50; color: white; border: none; cursor: pointer; font-size: 18px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Confirm Your Order</h2>
+  <div id="cartItems">
+    {% for item in cart %}
+      <div class="item">{{ item.name }} - ₹{{ item.price }}</div>
+    {% endfor %}
+  </div>
+  <div class="total">Total: ₹{{ cart | sum(attribute='price') }}</div>
+
+  <h3>Enter Your Details</h3>
+  <input type="text" id="name" placeholder="Name" required>
+  <input type="text" id="class" placeholder="Class" required>
+  <input type="tel" id="phone" placeholder="Phone Number" required>
+
+  <button onclick="confirmOrder()">Confirm Order</button>
+</div>
+
+<script>
+  function confirmOrder() {
+    const name = document.getElementById('name').value.trim();
+    const className = document.getElementById('class').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+
+    if (!name || !className || !phone) {
+      alert("All fields are required!");
+      return;
+    }
+
+    fetch('/final_checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, class: className, phone })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message);
+      window.location.href = "/";  // Redirect to home after order
+    });
+  }
+</script>
+
+</body>
+</html>
